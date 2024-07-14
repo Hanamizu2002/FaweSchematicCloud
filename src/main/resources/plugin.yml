@@ -1,4 +1,4 @@
-main: dev.themeinerlp.faweschematiccloud.FAWESchematicCloud
+main: work.alsace.faweschematiccloud.FAWESchematicCloud
 name: FAWESchematicCloud
 version: 1.3.0
 depend:
@@ -11,27 +11,3 @@ commands:
   /schemload:
     description: Loads a schematic
     usage: //schemload
-  /schemloadall:
-    description: Loads all schematics
-    usage: //schemloadall
-  /schemclear:
-    description: Clears a schematic
-    usage: //schemclear
-  /schemunload:
-    description: Unloads a schematic
-    usage: //schemunload
-  /schemmove:
-    description: Moves a schematic
-    usage: //schemmove
-  /schemsave:
-    description: Saves a schematic
-    usage: //schemsave
-  /schemformats:
-    description: Lists schematic formats
-    usage: //schemformats
-  /schemlist:
-    description: Lists all schematics
-    usage: //schemlist
-  /schemdel:
-    description: Deletes a schematic
-    usage: //schemdel

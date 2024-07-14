@@ -1,8 +1,8 @@
-package dev.themeinerlp.faweschematiccloud.util
+package work.alsace.faweschematiccloud.util
 
 import com.intellectualsites.arkitektonika.Arkitektonika
 import com.intellectualsites.arkitektonika.SchematicKeys
-import dev.themeinerlp.faweschematiccloud.FAWESchematicCloud
+import work.alsace.faweschematiccloud.FAWESchematicCloud
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.IOException

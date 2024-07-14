@@ -1,13 +1,15 @@
-package dev.themeinerlp.faweschematiccloud
+package work.alsace.faweschematiccloud
 
 import com.sk89q.worldedit.WorldEdit
 import com.sk89q.worldedit.command.SchematicCommands
 import dev.themeinerlp.faweschematiccloud.commands.*
-import dev.themeinerlp.faweschematiccloud.util.SchematicUploader
+import work.alsace.faweschematiccloud.util.SchematicUploader
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.TabExecutor
 import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
+import work.alsace.faweschematiccloud.commands.DownloadCommand
+import work.alsace.faweschematiccloud.commands.LoadCommand
 import java.util.*
 
 class FAWESchematicCloud : JavaPlugin() {
@@ -23,15 +25,7 @@ class FAWESchematicCloud : JavaPlugin() {
     override fun onEnable() {
         saveDefaultConfig()
         registerCommand("/schemdownload", DownloadCommand(this))
-        registerCommand("/schemload" ,LoadCommand(this))
-        registerCommand("/schemloadall", LoadAllCommand(this))
-        registerCommand("/schemclear", ClearCommand(this))
-        registerCommand("/schemunload", UnloadCommand(this))
-        registerCommand("/schemmove",MoveCommand(this))
-        registerCommand("/schemsave",SaveCommand(this))
-        registerCommand("/schemformats", FormatsCommand(this))
-        registerCommand("/schemlist", ListCommand(this))
-        registerCommand("/schemdel", DeleteCommand(this))
+        registerCommand("/schemload" , LoadCommand(this))
     }
 
     private fun registerCommand(command: String, executor: CommandExecutor) {

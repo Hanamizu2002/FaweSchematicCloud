@@ -1,4 +1,4 @@
-package dev.themeinerlp.faweschematiccloud.commands
+package work.alsace.faweschematiccloud.commands
 
 import com.fastasyncworldedit.core.configuration.Caption
 import com.fastasyncworldedit.core.configuration.Settings
@@ -9,7 +9,7 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats
 import com.sk89q.worldedit.util.formatting.text.TextComponent
-import dev.themeinerlp.faweschematiccloud.FAWESchematicCloud
+import work.alsace.faweschematiccloud.FAWESchematicCloud
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -56,7 +56,7 @@ class LoadCommand(
                     actor.print(Caption.of("fawe.error.no-perm", "worldedit.schematic.load.web"))
                     return
                 }
-                val accessKey = filename.substringAfterLast('/')
+                val accessKey = filename.removePrefix("url:")
                 format = ClipboardFormats.findByAlias(formatName) ?: return
                 val webUrl = URL(apiDownloadBaseUrl.replace("{key}", accessKey))
                 val byteChannel: ReadableByteChannel = Channels.newChannel(webUrl.openStream())
@@ -129,12 +129,7 @@ class LoadCommand(
             actor.print(Caption.of("worldedit.schematic.file-not-exist", TextComponent.of(Objects.toString(e.message))))
             faweSchematicCloud.log4JLogger.warn("Failed to load a saved clipboard", e);
         } finally {
-            if (`in` != null) {
-                try {
-                    `in`.close()
-                } catch (ignored: IOException) {
-                }
-            }
+            `in`?.close()
         }
 
     }
@@ -157,7 +152,10 @@ class LoadCommand(
             actor.print(Caption.of("worldedit.command.permissions"))
             return false
         }
-        val player: Player = sender as Player
+        val player: Player = sender as? Player ?: run {
+            actor.print(Caption.of("worldedit.command.only-player"))
+            return false
+        }
         if (args == null || args.isEmpty()) {
             actor.print(Caption.of("usage: //schemload <filename/url> [schem/schematic]"))
             return false
@@ -167,9 +165,7 @@ class LoadCommand(
             return false
         }
         val fileName = args[0]
-        val formatName = args[1].ifEmpty {
-            "fast"
-        }
+        val formatName = if (args.size > 1) args[1] else "fast"
         load(player, formatName, fileName)
         return true
     }

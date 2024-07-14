@@ -1,14 +1,14 @@
 arkitektonika:
   # The url of the backend server (Arkitektonika)
-  backendUrl: https://api.schem.alsace.team/
+  backendUrl: https://api.schem.alsace.team
   # The url used to generate a download link from.
   downloadUrl: https://api.schem.alsace.team/download/{key}
   # The url used to generate a deletion link from.
   deleteUrl: https://api.schem.alsace.team/delete/{key}
 web:
   # The url of the frontend
-  frontend: https://schem.alsace.team/
+  frontend: https://schem.alsace.team
   # The url used to generate a download link from.
-  downloadUrl: https://schem.alsace.team/download/{key}
+  downloadUrl: https://api.schem.alsace.team/download/{key}
   # The url used to generate a deletion link from.
-  deleteUrl: https://schem.alsace.team/delete/{key}
+  deleteUrl: https://api.schem.alsace.team/delete/{key}

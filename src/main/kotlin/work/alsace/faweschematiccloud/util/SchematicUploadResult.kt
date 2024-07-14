@@ -1,4 +1,4 @@
-package dev.themeinerlp.faweschematiccloud.util
+package work.alsace.faweschematiccloud.util
 
 data class SchematicUploadResult(
     val success: Boolean,
