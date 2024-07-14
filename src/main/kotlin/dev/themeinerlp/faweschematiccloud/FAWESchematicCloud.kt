@@ -1,57 +1,19 @@
 package dev.themeinerlp.faweschematiccloud
 
-import cloud.commandframework.CommandManager
-import cloud.commandframework.annotations.AnnotationParser
-import cloud.commandframework.arguments.parser.ParserParameters
-import cloud.commandframework.arguments.parser.StandardParameters
-import cloud.commandframework.bukkit.CloudBukkitCapabilities
-import cloud.commandframework.execution.CommandExecutionCoordinator
-import cloud.commandframework.meta.CommandMeta
-import cloud.commandframework.paper.PaperCommandManager
 import com.sk89q.worldedit.WorldEdit
 import com.sk89q.worldedit.command.SchematicCommands
 import dev.themeinerlp.faweschematiccloud.commands.*
 import dev.themeinerlp.faweschematiccloud.util.SchematicUploader
-import org.bukkit.command.CommandSender
+import org.bukkit.command.CommandExecutor
+import org.bukkit.command.TabExecutor
+import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.function.Function
+import java.util.*
 
 class FAWESchematicCloud : JavaPlugin() {
 
     val schematicUploader: SchematicUploader by lazy {
         SchematicUploader(this)
-    }
-
-    private val paperCommandManager: PaperCommandManager<CommandSender> by lazy {
-        PaperCommandManager(
-            this,
-            CommandExecutionCoordinator.simpleCoordinator(),
-            Function.identity(),
-            Function.identity()
-        )
-    }
-
-    val annotationParser: AnnotationParser<CommandSender> by lazy {
-        if (paperCommandManager.hasCapability(CloudBukkitCapabilities.BRIGADIER)) {
-            paperCommandManager.registerBrigadier()
-            this.getLogger().info("Brigadier support enabled")
-        }
-        if (paperCommandManager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
-            paperCommandManager.registerAsynchronousCompletions()
-            this.getLogger().info("Asynchronous completions enabled")
-        }
-        paperCommandManager.setSetting(CommandManager.ManagerSettings.OVERRIDE_EXISTING_COMMANDS, false);
-        val commandMetaFunction =
-            Function<ParserParameters, CommandMeta> { p: ParserParameters ->
-                CommandMeta.simple().with(
-                    CommandMeta.DESCRIPTION,
-                    p.get(StandardParameters.DESCRIPTION, "No description")
-                ).build()
-            }
-        AnnotationParser(
-            paperCommandManager,
-            CommandSender::class.java, commandMetaFunction
-        )
     }
 
     val schematicCommand: SchematicCommands by lazy {
@@ -60,16 +22,20 @@ class FAWESchematicCloud : JavaPlugin() {
 
     override fun onEnable() {
         saveDefaultConfig()
-        annotationParser.parse(DownloadCommand(this))
-        annotationParser.parse(LoadCommand(this))
-        annotationParser.parse(LoadAllCommand(this))
-        annotationParser.parse(ClearCommand(this))
-        annotationParser.parse(UnloadCommand(this))
-        annotationParser.parse(MoveCommand(this))
-        annotationParser.parse(SaveCommand(this))
-        annotationParser.parse(FormatsCommand(this))
-        annotationParser.parse(ListCommand(this))
-        annotationParser.parse(DeleteCommand(this))
+        registerCommand("/schemdownload", DownloadCommand(this))
+        registerCommand("/schemload" ,LoadCommand(this))
+        registerCommand("/schemloadall", LoadAllCommand(this))
+        registerCommand("/schemclear", ClearCommand(this))
+        registerCommand("/schemunload", UnloadCommand(this))
+        registerCommand("/schemmove",MoveCommand(this))
+        registerCommand("/schemsave",SaveCommand(this))
+        registerCommand("/schemformats", FormatsCommand(this))
+        registerCommand("/schemlist", ListCommand(this))
+        registerCommand("/schemdel", DeleteCommand(this))
+    }
+
+    private fun registerCommand(command: String, executor: CommandExecutor) {
+        Objects.requireNonNull(getCommand(command))?.setExecutor(executor)
     }
 
 }

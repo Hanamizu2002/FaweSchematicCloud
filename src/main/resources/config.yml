@@ -1,14 +1,14 @@
 arkitektonika:
   # The url of the backend server (Arkitektonika)
-  backendUrl: https://api.schematic.cloud/
+  backendUrl: https://api.schem.alsace.team/
   # The url used to generate a download link from.
-  downloadUrl: https://api.schematic.cloud/download/{key}
+  downloadUrl: https://api.schem.alsace.team/download/{key}
   # The url used to generate a deletion link from.
-  deleteUrl: https://api.schematic.cloud/delete/{key}
+  deleteUrl: https://api.schem.alsace.team/delete/{key}
 web:
   # The url of the frontend
-  frontend: https://schematic.cloud/
+  frontend: https://schem.alsace.team/
   # The url used to generate a download link from.
-  downloadUrl: https://schematic.cloud/download/{key}
+  downloadUrl: https://schem.alsace.team/download/{key}
   # The url used to generate a deletion link from.
-  deleteUrl: https://schematic.cloud/delete/{key}
+  deleteUrl: https://schem.alsace.team/delete/{key}

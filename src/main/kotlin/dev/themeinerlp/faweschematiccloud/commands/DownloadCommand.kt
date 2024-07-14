@@ -1,9 +1,5 @@
 package dev.themeinerlp.faweschematiccloud.commands
 
-import cloud.commandframework.annotations.Argument
-import cloud.commandframework.annotations.CommandMethod
-import cloud.commandframework.annotations.CommandPermission
-import cloud.commandframework.annotations.specifier.Greedy
 import com.fastasyncworldedit.core.configuration.Caption
 import com.fastasyncworldedit.core.extent.clipboard.MultiClipboardHolder
 import com.sk89q.worldedit.WorldEdit
@@ -12,16 +8,37 @@ import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat
 import com.sk89q.worldedit.util.formatting.text.event.ClickEvent
 import dev.themeinerlp.faweschematiccloud.FAWESchematicCloud
 import dev.themeinerlp.faweschematiccloud.util.SchematicHolder
-import org.bukkit.entity.Player
+import org.bukkit.command.Command
+import org.bukkit.command.CommandExecutor
+import org.bukkit.command.CommandSender
 
 class DownloadCommand(
     private val faweSchematicCloud: FAWESchematicCloud
-) {
+) : CommandExecutor {
+    /**
+     * Executes the given command, returning its success.
+     * <br></br>
+     * If false is returned, then the "usage" plugin.yml entry for this command
+     * (if defined) will be sent to the player.
+     *
+     * @param sender Source of the command
+     * @param command Command which was executed
+     * @param label Alias of the command which was used
+     * @param args Passed command arguments
+     * @return true if a valid command, otherwise false
+     */
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean {
+        val actor = BukkitAdapter.adapt(sender)
+        if (!sender.hasPermission("worldedit.clipboard.download")) {
+            actor.print(Caption.of("worldedit.command.permissions"))
+            return false
+        }
+        if (args != null) {
+            actor.print(Caption.of("usage: //schemdownload"))
+            return false
+        }
+        val format: BuiltInClipboardFormat = BuiltInClipboardFormat.FAST
 
-    @CommandMethod("/download [format]")
-    @CommandPermission("worldedit.clipboard.download")
-    fun download(player: Player, @Argument("format", defaultValue = "fast") @Greedy format: BuiltInClipboardFormat) {
-        val actor = BukkitAdapter.adapt(player)
         val sessionManager = WorldEdit.getInstance().sessionManager
         val session = sessionManager[actor]
         val clipboard = session.clipboard
@@ -31,6 +48,7 @@ class DownloadCommand(
             faweSchematicCloud.schematicUploader.upload(schematicHolder).whenComplete { result, throwable ->
                 if (throwable != null || !result.success) {
                     actor.print(Caption.of("fawe.web.generating.link.failed"))
+                    return@whenComplete
                 } else {
                     val download = result.downloadUrl!!
                     val frontEndDownload = result.downloadUrl
@@ -40,8 +58,7 @@ class DownloadCommand(
                 }
             }
         }
-
-
+        return true
     }
 
 }

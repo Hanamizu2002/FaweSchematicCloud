@@ -1,6 +1,4 @@
-import com.modrinth.minotaur.dependencies.Dependency
 import io.papermc.hangarpublishplugin.model.Platforms
-import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default
 import org.ajoberstar.grgit.Grgit
 import xyz.jpenilla.runpaper.task.RunServer
 import java.util.*
@@ -11,7 +9,7 @@ plugins {
     id("xyz.jpenilla.run-paper") version "2.2.2"
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
     id("io.papermc.hangar-publish-plugin") version "0.1.2"
-    id("com.modrinth.minotaur") version "2.+"
+    id("com.modrinth.minotaur") version "2.8.7"
     id("org.ajoberstar.grgit") version "5.2.1"
     id("org.jetbrains.changelog") version "2.2.0"
 }
@@ -27,7 +25,7 @@ if (!File("$rootDir/.git").exists()) {
     ).also { System.exit(1) }
 }
 
-var baseVersion by extra("1.2.0")
+var baseVersion by extra("1.3.0")
 var extension by extra("")
 var snapshot by extra("-SNAPSHOT")
 
@@ -51,19 +49,14 @@ repositories {
 
 dependencies {
     // Paper
-    compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
     // Fawe Support
     implementation(platform("com.intellectualsites.bom:bom-1.18.x:1.31"))
-    implementation("com.intellectualsites.arkitektonika:Arkitektonika-Client:2.1.2")
+    implementation("com.intellectualsites.arkitektonika:Arkitektonika-Client:2.1.3")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit") {
         isTransitive = false
     }
-    // Commands
-    implementation("cloud.commandframework:cloud-annotations:1.8.4")
-    implementation("cloud.commandframework:cloud-minecraft-extras:1.8.4")
-    implementation("cloud.commandframework:cloud-paper:1.8.4")
-    annotationProcessor("cloud.commandframework:cloud-annotations:1.8.4")
     implementation("me.lucko:commodore:2.2")
 
     testImplementation(platform("org.junit:junit-bom:5.10.1"))
@@ -84,6 +77,12 @@ val supportedMinecraftVersions = listOf(
     "1.19.4",
     "1.20",
     "1.20.1",
+    "1.20.2",
+    "1.20.3",
+    "1.20.4",
+    "1.20.5",
+    "1.20.6",
+    "1.21"
 )
 
 tasks {
@@ -104,7 +103,7 @@ tasks {
     }
     register<RunServer>("runFolia") {
         downloadsApiService.set(xyz.jpenilla.runtask.service.DownloadsAPIService.folia(project))
-        minecraftVersion("1.19.4")
+        minecraftVersion("1.21")
         group = "run paper"
         runDirectory.set(file("run-folia"))
         jvmArgs("-DPaper.IgnoreJavaVersion=true", "-Dcom.mojang.eula.agree=true")
@@ -117,12 +116,12 @@ tasks {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 bukkit {
     main = "dev.themeinerlp.faweschematiccloud.FAWESchematicCloud"
-    apiVersion = "1.16"
+    apiVersion = "1.21"
     authors = listOf("TheMeinerLP")
     depend = listOf("FastAsyncWorldEdit")
 }
@@ -146,8 +145,8 @@ hangarPublish {
             )
         )
         apiKey.set(System.getenv("HANGAR_SECRET"))
-        owner.set("OneLiteFeather")
-        slug.set("FaweSchematicCloud")
+//        owner.set("OneLiteFeather")
+//        slug.set("FaweSchematicCloud")
 
         platforms {
             register(Platforms.PAPER) {
@@ -176,4 +175,8 @@ modrinth {
     dependencies {
         required.project("z4HZZnLr") // Fawe
     }
+}
+
+tasks.processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
