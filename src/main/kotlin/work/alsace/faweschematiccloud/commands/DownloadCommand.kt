@@ -22,7 +22,7 @@ class DownloadCommand(
             return false
         }
         if (args != null && args.isNotEmpty()) {
-            actor.print(Caption.of("usage: //schemdownload"))
+            actor.print(Caption.of("usage: //download"))
             return false
         }
         val format: BuiltInClipboardFormat = BuiltInClipboardFormat.FAST

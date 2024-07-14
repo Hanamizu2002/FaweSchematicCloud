@@ -3,11 +3,11 @@ name: FAWESchematicCloud
 version: 1.3.0
 depend:
   - 'FastAsyncWorldEdit'
-api-version: '1.21'
+api-version: '1.17'
 commands:
-  /schemdownload:
+  /download:
     description: Downloads a schematic
-    usage: //schemdownload
-  /schemload:
+    usage: //download
+  /schem:
     description: Loads a schematic
-    usage: //schemload
+    usage: //schem load

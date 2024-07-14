@@ -49,7 +49,7 @@ repositories {
 
 dependencies {
     // Paper
-    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.17-R0.1-SNAPSHOT")
     // Fawe Support
     implementation(platform("com.intellectualsites.bom:bom-1.18.x:1.31"))
     implementation("com.intellectualsites.arkitektonika:Arkitektonika-Client:2.1.3")
@@ -64,7 +64,6 @@ dependencies {
 }
 
 val supportedMinecraftVersions = listOf(
-    "1.16.5",
     "1.17",
     "1.17.1",
     "1.18",
@@ -103,7 +102,7 @@ tasks {
     }
     register<RunServer>("runFolia") {
         downloadsApiService.set(xyz.jpenilla.runtask.service.DownloadsAPIService.folia(project))
-        minecraftVersion("1.21")
+        minecraftVersion("1.17")
         group = "run paper"
         runDirectory.set(file("run-folia"))
         jvmArgs("-DPaper.IgnoreJavaVersion=true", "-Dcom.mojang.eula.agree=true")
@@ -116,12 +115,12 @@ tasks {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 }
 
 bukkit {
     main = "dev.themeinerlp.faweschematiccloud.FAWESchematicCloud"
-    apiVersion = "1.21"
+    apiVersion = "1.17"
     authors = listOf("TheMeinerLP")
     depend = listOf("FastAsyncWorldEdit")
 }
