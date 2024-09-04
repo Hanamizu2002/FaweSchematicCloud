@@ -45,13 +45,14 @@ version = "%s%s".format(Locale.ROOT, baseVersion, extension)
 repositories {
     mavenCentral()
     maven("https://papermc.io/repo/repository/maven-public/")
+    maven("https://maven.enginehub.org/repo/")
 }
 
 dependencies {
     // Paper
-    compileOnly("io.papermc.paper:paper-api:1.17-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
     // Fawe Support
-    implementation(platform("com.intellectualsites.bom:bom-1.18.x:1.31"))
+    implementation(platform("com.intellectualsites.bom:bom-newest:1.48"))
     implementation("com.intellectualsites.arkitektonika:Arkitektonika-Client:2.1.3")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit") {
@@ -64,23 +65,6 @@ dependencies {
 }
 
 val supportedMinecraftVersions = listOf(
-    "1.17",
-    "1.17.1",
-    "1.18",
-    "1.18.1",
-    "1.18.2",
-    "1.19",
-    "1.19.1",
-    "1.19.2",
-    "1.19.3",
-    "1.19.4",
-    "1.20",
-    "1.20.1",
-    "1.20.2",
-    "1.20.3",
-    "1.20.4",
-    "1.20.5",
-    "1.20.6",
     "1.21"
 )
 
@@ -102,7 +86,7 @@ tasks {
     }
     register<RunServer>("runFolia") {
         downloadsApiService.set(xyz.jpenilla.runtask.service.DownloadsAPIService.folia(project))
-        minecraftVersion("1.17")
+        minecraftVersion("1.21")
         group = "run paper"
         runDirectory.set(file("run-folia"))
         jvmArgs("-DPaper.IgnoreJavaVersion=true", "-Dcom.mojang.eula.agree=true")
@@ -115,65 +99,14 @@ tasks {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 bukkit {
     main = "dev.themeinerlp.faweschematiccloud.FAWESchematicCloud"
-    apiVersion = "1.17"
+    apiVersion = "1.21"
     authors = listOf("TheMeinerLP")
     depend = listOf("FastAsyncWorldEdit")
-}
-
-changelog {
-    version.set(baseVersion)
-    path.set("${project.projectDir}/CHANGELOG.md")
-    itemPrefix.set("-")
-    keepUnreleasedSection.set(true)
-    unreleasedTerm.set("[Unreleased]")
-    groups.set(listOf("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"))
-}
-
-hangarPublish {
-    publications.register("FaweSchematicCloud") {
-        version.set(project.version.toString())
-        channel.set(System.getenv("HANGAR_CHANNEL"))
-        changelog.set(
-            project.changelog.renderItem(
-                project.changelog.getOrNull(baseVersion) ?: project.changelog.getUnreleased()
-            )
-        )
-        apiKey.set(System.getenv("HANGAR_SECRET"))
-//        owner.set("OneLiteFeather")
-//        slug.set("FaweSchematicCloud")
-
-        platforms {
-            register(Platforms.PAPER) {
-                jar.set(tasks.shadowJar.flatMap { it.archiveFile })
-                platformVersions.set(supportedMinecraftVersions)
-            }
-        }
-    }
-}
-
-modrinth {
-    token.set(System.getenv("MODRINTH_TOKEN"))
-    projectId.set("PldPGKGt")
-    versionNumber.set(version.toString())
-    versionType.set(System.getenv("MODRINTH_CHANNEL"))
-    uploadFile.set(tasks.shadowJar as Any)
-    gameVersions.addAll(supportedMinecraftVersions)
-    loaders.add("paper")
-    loaders.add("bukkit")
-    loaders.add("folia")
-    changelog.set(
-        project.changelog.renderItem(
-            project.changelog.getOrNull(baseVersion) ?: project.changelog.getUnreleased()
-        )
-    )
-    dependencies {
-        required.project("z4HZZnLr") // Fawe
-    }
 }
 
 tasks.processResources {
