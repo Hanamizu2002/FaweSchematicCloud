@@ -166,7 +166,7 @@ class LoadCommand(
                 return false
             }
             val fileName = args[1]
-            val formatName = if (args.size > 2) args[2] else "fast"
+            val formatName = if (args.size > 2) args[2] else "fast.2"
             load(player, formatName, fileName)
             return true
         }
