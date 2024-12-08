@@ -157,16 +157,16 @@ class LoadCommand(
             return false
         }
         if (args == null || args.isEmpty()) {
-            actor.print(Caption.of("usage: //schem load <filename/url> [schem/schematic]"))
+            actor.print(Caption.of("usage: //schem load <filename/url> [schematic/fast/fast.2]"))
             return false
         }
         if (args[0] == "load") {
             if (args.size > 3) {
-                actor.print(Caption.of("usage: //schem load <filename/url> [schem/schematic]"))
+                actor.print(Caption.of("usage: //schem load <filename/url> [schematic/fast/fast.2]"))
                 return false
             }
             val fileName = args[1]
-            val formatName = if (args.size > 2) args[2] else "fast.2"
+            val formatName = if (args.size > 2) args[2] else "fast"
             load(player, formatName, fileName)
             return true
         }
