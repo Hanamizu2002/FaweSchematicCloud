@@ -58,10 +58,11 @@ dependencies {
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit") {
         isTransitive = false
     }
-    implementation("me.lucko:commodore:2.2")
 
     testImplementation(platform("org.junit:junit-bom:5.10.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    // Gson is supplied by Paper in production.
+    testRuntimeOnly("com.google.code.gson:gson:2.10.1")
 }
 
 val supportedMinecraftVersions = listOf(
@@ -91,11 +92,7 @@ tasks {
         runDirectory.set(file("run-folia"))
         jvmArgs("-DPaper.IgnoreJavaVersion=true", "-Dcom.mojang.eula.agree=true")
     }
-    generateBukkitPluginDescription {
-        doLast {
-            outputDirectory.file(fileName).get().asFile.appendText("folia-supported: true")
-        }
-    }
+
 }
 
 kotlin {
@@ -103,10 +100,17 @@ kotlin {
 }
 
 bukkit {
+    name = "FAWESchematicCloud"
     main = "dev.themeinerlp.faweschematiccloud.FAWESchematicCloud"
     apiVersion = "1.21"
     authors = listOf("TheMeinerLP")
     depend = listOf("FastAsyncWorldEdit")
+    commands {
+        register("schemcloud") {
+            description = "Upload or load a schematic through Arkitektonika"
+            usage = "/schemcloud download | /schemcloud load <filename|url:key> [format]"
+        }
+    }
 }
 
 tasks.processResources {

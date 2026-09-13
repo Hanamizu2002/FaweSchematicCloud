@@ -1,4 +1,4 @@
-package work.alsace.faweschematiccloud.commands
+package dev.themeinerlp.faweschematiccloud.commands
 
 import com.fastasyncworldedit.core.configuration.Caption
 import com.fastasyncworldedit.core.extent.clipboard.MultiClipboardHolder
@@ -6,8 +6,8 @@ import com.sk89q.worldedit.WorldEdit
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat
 import com.sk89q.worldedit.util.formatting.text.event.ClickEvent
-import work.alsace.faweschematiccloud.FAWESchematicCloud
-import work.alsace.faweschematiccloud.util.SchematicHolder
+import dev.themeinerlp.faweschematiccloud.FAWESchematicCloud
+import dev.themeinerlp.faweschematiccloud.util.SchematicHolder
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -15,34 +15,33 @@ import org.bukkit.command.CommandSender
 class DownloadCommand(
     private val faweSchematicCloud: FAWESchematicCloud
 ) : CommandExecutor {
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean {
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         val actor = BukkitAdapter.adapt(sender)
         if (!sender.hasPermission("worldedit.clipboard.download")) {
             actor.print(Caption.of("worldedit.command.permissions"))
             return false
         }
-        if (args != null && args.isNotEmpty()) {
-            actor.print(Caption.of("usage: //download"))
+        if (args.isNotEmpty()) {
+            actor.print(Caption.of("Usage: /$label download"))
             return false
         }
-        val format: BuiltInClipboardFormat = BuiltInClipboardFormat.FAST
+        val format: BuiltInClipboardFormat = BuiltInClipboardFormat.FAST_V3
 
         val sessionManager = WorldEdit.getInstance().sessionManager
         val session = sessionManager[actor]
-        val clipboard = session.clipboard
+        val clipboard = try { session.clipboard } catch (_: com.sk89q.worldedit.EmptyClipboardException) { null }
         if (clipboard !is MultiClipboardHolder && clipboard != null) {
             actor.print(Caption.of("fawe.web.generating.link", format))
             val schematicHolder = SchematicHolder(clipboard, format)
             faweSchematicCloud.schematicUploader.upload(schematicHolder).whenComplete { result, throwable ->
-                if (throwable != null || !result.success) {
-                    actor.print(Caption.of("fawe.web.generating.link.failed"))
-                    return@whenComplete
-                } else {
-                    val download = result.downloadUrl!!
-                    val frontEndDownload = result.downloadUrl
-                    actor.print(
-                        Caption.of("fawe.web.download.link", frontEndDownload).clickEvent(ClickEvent.openUrl(download))
-                    )
+                faweSchematicCloud.onMainThread {
+                    if (throwable != null || result == null || !result.success) {
+                        actor.print(Caption.of("fawe.web.generating.link.failed"))
+                        faweSchematicCloud.logger.warning("Schematic upload failed: ${throwable?.cause?.message ?: throwable?.message ?: "empty response"}")
+                    } else {
+                        val download = requireNotNull(result.downloadUrl)
+                        actor.print(Caption.of("fawe.web.download.link", download).clickEvent(ClickEvent.openUrl(download)))
+                    }
                 }
             }
         } else {

@@ -1,8 +1,8 @@
-package work.alsace.faweschematiccloud.util
+package dev.themeinerlp.faweschematiccloud.util
 
 import com.intellectualsites.arkitektonika.Arkitektonika
 import com.intellectualsites.arkitektonika.SchematicKeys
-import work.alsace.faweschematiccloud.FAWESchematicCloud
+import dev.themeinerlp.faweschematiccloud.FAWESchematicCloud
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.IOException
@@ -10,7 +10,6 @@ import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionException
 
 class SchematicUploader(
     private val faweSchematicCloud: FAWESchematicCloud
@@ -21,13 +20,19 @@ class SchematicUploader(
     private val arkitektonika: Arkitektonika by lazy {
         val backendUrl =
             faweSchematicCloud.config.getString("arkitektonika.backendUrl") ?: throw NullPointerException("Arkitektonika Backend Url not found")
-        Arkitektonika.builder().withUrl(backendUrl).build()
+        Arkitektonika.builder().withUrl(backendUrl).withExecutorService(faweSchematicCloud.ioExecutor).build()
     }
 
     fun upload(holder: SchematicHolder): CompletableFuture<SchematicUploadResult> {
-        return CompletableFuture.completedFuture(holder)
-            .thenApply(this::writeToTempFile)
-            .thenApply(this::uploadAndDelete)
+        return CompletableFuture.supplyAsync({ writeToTempFile(holder) }, faweSchematicCloud.ioExecutor)
+            .thenCompose { file ->
+                try {
+                    arkitektonika.upload(file.toFile()).whenComplete { _, _ -> deleteTempFile(file) }
+                } catch (e: Exception) {
+                    deleteTempFile(file)
+                    throw e
+                }
+            }
             .thenApply(this::wrapIntoResult)
     }
 
@@ -44,32 +49,23 @@ class SchematicUploader(
         return SchematicUploadResult(true, apiDownload, apiDelete, download, delete)
     }
 
-    private fun uploadAndDelete(file: Path): SchematicKeys? {
-        return try {
-            val upload = arkitektonika.upload(file.toFile())
-            upload.join()
-        } catch (e: CompletionException) {
-            logger.error("Failed to upload schematic", e)
-            null
-        } finally {
-            try {
-                Files.delete(file)
-            } catch (e: IOException) {
-                logger.error("Failed to delete temporary file {}", file, e);
-
-            }
+    private fun deleteTempFile(file: Path) {
+        try {
+            Files.deleteIfExists(file)
+        } catch (e: IOException) {
+            logger.warn("Failed to delete temporary schematic", e)
         }
     }
 
     private fun writeToTempFile(holder: SchematicHolder): Path {
+        Files.createDirectories(tempDir)
+        val file = Files.createTempFile(tempDir, "schematic-", ".schem")
         try {
-            val tempFile = Files.createTempFile(tempDir, null, null)
-            Files.newOutputStream(tempFile).use {
-                writeSchematic(holder, it)
-            }
-            return tempFile
-        } catch (e: IOException) {
-            throw RuntimeException(e)
+            Files.newOutputStream(file).use { writeSchematic(holder, it) }
+            return file
+        } catch (e: Exception) {
+            deleteTempFile(file)
+            throw e
         }
     }
 
