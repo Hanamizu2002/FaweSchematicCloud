@@ -62,7 +62,8 @@ web:
 - `commands/SchemCloudCommand`：主命令分发、玩家检查、补全。
 - `commands/DownloadCommand`、`LoadCommand`：上传和加载流程。
 - `util/SchematicUploader`：序列化、API 上传、临时文件清理。
-- `build.gradle.kts`：依赖、打包和唯一的插件描述生成入口。
+- `src/main/resources/plugin.yml`：插件描述与主命令声明，版本号在构建时自动填入。
+- `build.gradle.kts`：依赖和打包配置。
 
 ```sh
 ./gradlew test shadowJar

@@ -1,0 +1,14 @@
+name: FAWESchematicCloud
+version: '${version}'
+main: dev.themeinerlp.faweschematiccloud.FAWESchematicCloud
+api-version: '1.21'
+authors:
+  - TheMeinerLP
+  - Hanamizu_
+  - ChatGPT
+depend:
+  - FastAsyncWorldEdit
+commands:
+  schemcloud:
+    description: Upload or load a schematic through Arkitektonika
+    usage: /schemcloud download | /schemcloud load <filename|url:key> [format]

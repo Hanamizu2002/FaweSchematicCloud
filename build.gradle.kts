@@ -7,7 +7,6 @@ plugins {
     kotlin("jvm") version "1.9.22"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("xyz.jpenilla.run-paper") version "2.2.2"
-    id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
     id("io.papermc.hangar-publish-plugin") version "0.1.2"
     id("com.modrinth.minotaur") version "2.8.7"
     id("org.ajoberstar.grgit") version "5.2.1"
@@ -99,20 +98,9 @@ kotlin {
     jvmToolchain(21)
 }
 
-bukkit {
-    name = "FAWESchematicCloud"
-    main = "dev.themeinerlp.faweschematiccloud.FAWESchematicCloud"
-    apiVersion = "1.21"
-    authors = listOf("TheMeinerLP")
-    depend = listOf("FastAsyncWorldEdit")
-    commands {
-        register("schemcloud") {
-            description = "Upload or load a schematic through Arkitektonika"
-            usage = "/schemcloud download | /schemcloud load <filename|url:key> [format]"
-        }
-    }
-}
-
 tasks.processResources {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    inputs.property("version", project.version.toString())
+    filesMatching("plugin.yml") {
+        expand("version" to project.version.toString())
+    }
 }
