@@ -16,8 +16,8 @@ class SchemCloudCommand(plugin: FAWESchematicCloud) : TabExecutor {
             return true
         }
         when (args.firstOrNull()?.lowercase()) {
-            "download" -> download.onCommand(sender, command, label, args.drop(1).toTypedArray())
-            "load" -> load.onCommand(sender, command, label, args.drop(1).toTypedArray())
+            "download" -> download.execute(sender, label, args.drop(1).toTypedArray())
+            "load" -> load.execute(sender, label, args.drop(1).toTypedArray())
             else -> sender.sendMessage("Usage: /$label download | /$label load <filename|url:key> [format]")
         }
         return true
