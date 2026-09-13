@@ -5,6 +5,7 @@ import com.fastasyncworldedit.core.util.MainUtil
 import com.sk89q.worldedit.WorldEdit
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.extent.clipboard.Clipboard
+import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats
 import com.sk89q.worldedit.session.ClipboardHolder
@@ -12,6 +13,7 @@ import dev.themeinerlp.faweschematiccloud.FAWESchematicCloud
 import org.bukkit.entity.Player
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URI
 import java.util.concurrent.CompletableFuture
@@ -79,7 +81,8 @@ class LoadCommand(private val plugin: FAWESchematicCloud) {
             if (connection.responseCode != HttpURLConnection.HTTP_OK) {
                 throw IOException("Download failed (HTTP ${connection.responseCode})")
             }
-            connection.inputStream.use { input -> format.getReader(input).use { it.read() } }
+            val bytes = connection.inputStream.use(InputStream::readBytes)
+            readClipboard(format) { bytes.inputStream() }
         } finally {
             connection.disconnect()
         }
@@ -91,9 +94,35 @@ class LoadCommand(private val plugin: FAWESchematicCloud) {
             "Schematic is outside the permitted directory"
         }
         if (!file.isFile) throw IOException("Schematic does not exist")
-        val detectedFormat = ClipboardFormats.findByFile(file) ?: throw IOException("Unknown schematic format")
-        return file.inputStream().use { input -> detectedFormat.getReader(input).use { it.read() } }
+        return readClipboard(format, file::inputStream)
     }
+
+    private fun readClipboard(preferredFormat: ClipboardFormat, openStream: () -> InputStream): Clipboard {
+        var readFailure: Exception? = null
+        for (format in formatsToTry(preferredFormat)) {
+            val matches = try {
+                openStream().use(format::isFormat)
+            } catch (_: Exception) {
+                false
+            }
+            if (!matches) continue
+
+            try {
+                return openStream().use { input -> format.getReader(input).use { it.read() } }
+            } catch (exception: Exception) {
+                readFailure = exception
+            }
+        }
+        throw IOException("Unknown or unreadable schematic format", readFailure)
+    }
+
+    private fun formatsToTry(preferredFormat: ClipboardFormat): List<ClipboardFormat> = buildList {
+        add(BuiltInClipboardFormat.FAST_V3)
+        add(BuiltInClipboardFormat.FAST_V2)
+        add(BuiltInClipboardFormat.SPONGE_V1_SCHEMATIC)
+        add(preferredFormat)
+        addAll(ClipboardFormats.getAll())
+    }.distinct()
 
     private companion object {
         val DOWNLOAD_KEY = Regex("[0-9a-f]{32}")
